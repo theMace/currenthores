@@ -1,0 +1,24 @@
+For example if you have www.domain1.com www.domain2.org and www.domain3.edu you need to generate the certificate pairs:
+
+openssl genrsa -out multidomain-server.key 1024
+
+or if you want to password protect the private key(and supply the private key each time the server software is started) then
+
+openssl genrsa -des3 -out multidomain-server.key 1024
+
+Generate the certificate request:
+
+openssl req -new -key multidomain-server.key -out multidomain-server.csr
+
+When asked for the CommonName enter the first name, eg: www.domain1.com
+Specify all names and a text file which will be used as the certificate extensions source
+
+echo "subjectAltName=DNS:www.domain1.com,DNS:www.domain2.org,DNS:www.domain3.edu">cert_extensions
+
+Now you can self sign the public certificate file , for let's say three years, using:
+
+openssl x509 -req -in multidomain-server.csr -signkey multidomain-server.key -extfile cert_extensions -out multidomain-server.crt -days 1095
+
+and clean up
+
+rm cert_extensions multidomain-server.csr

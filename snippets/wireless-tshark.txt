@@ -1,0 +1,170 @@
+#airmon
+ifconfig wlan2 up; airmon-ng start wlan2; airodump-ng --channel 11 --encrypt WEP --write /sd/dumpit/WEPS.csv --output-format pcap mon0; 
+
+hostapd_cli -p /var/run/hostapd-phy0 karma_enable; urlsnarf -i br-lan > /sd/infusions/urlsnarf/includes/log/output_`date +%s`.log & 
+
+
+#tshark
+
+mac="11:22:33:44:55:66"
+tshark -i wlan0 -T fields -e frame.time_relative -e wlan.sa -e wlan.da -e radiotap.datarate -e wlan_mgt.ssid -e wlan \
+    -R "wlan.ra == $mac || wlan.sa == $mac || wlan.ta == $mac || wlan.da == $mac"
+
+
+# iwconfig wlan0 mode monitor
+# iwconfig wlan0 channel <i>
+# tshark -i wlan0 subtype probereq
+
+tshark -r neighbors.pcap -R "wlan.fc.type == 0" | grep SSID | sed 's/^.*SSID=//' | sort | uniq -c
+
+
+    Show only the beacon frames:
+    wlan.fc.type_subtype == 0x08
+    Show everything except the beacon frames:
+    !wlan.fc.type_subtype == 0x08
+    Show only beacon frames and ack frames:
+    (wlan.fc.type_subtype == 0x08) || (wlan.fc.type_subtype == 0x1d) 
+    Show everything except the beacon and ack frames
+    (!wlan.fc.type_subtype == 0x08) && (!wlan.fc.type_subtype == 0x1d)
+
+
+
+    Capture only beacon frames:
+    wlan[0] == 0x80
+    Capture everything except beacon frames:
+    wlan[0] != 0x80
+    Capture only beacon frames and ack frames:
+    wlan[0] == 0xd4
+    Capture everything except beacon frames and ack  frames:
+    wlan[0] != 0x80 and wlan[0] != 0xd4
+
+
+"    Capture only Ethernet type EAPOL" ether proto 0x888e
+"    Beacon Frames" wlan[0] == 0x80
+"    No Beacon Frames" wlan[0] != 0x80
+"    Probe Requests" wlan[0] == 0x40
+"    No Probe Requests" wlan[0] != 0x40
+"    Probe Response" wlan[0] == 0x50
+"    No Probe Response" wlan[0] != 0x50
+"    Ack" wlan[0] == 0xd4
+"    No Ack" wlan[0] != 0xd4
+"    CF-End" wlan[0] == 0xe4
+"    No CF-End" wlan[0] != 0xe4
+"    Clear-to-send" wlan[0] == 0xc4
+"    No Clear-to-send" wlan[0] != 0xc4
+"    Beacon Frames - Probe Response/Request - Ack" wlan[0] == 0x80 or wlan[0] == 0x50 or wlan[0] == 0x40 or wlan[0] == 0xd4
+"    No Beacon Frames - No Probe Response/Request - No Ack" wlan[0] != 0x80 and wlan[0] != 0x50 and wlan[0] != 0x40 and wlan[0] != 0xd4
+"    Beacon Frames-Probe Resp/Req-Ack-CF-End-Clear-to-send" wlan[0] == 0x80 or wlan[0] == 0x50 or wlan[0] == 0x40 or wlan[0] == 0xd4 or wlan[0] == 0xe4 or wlan[0] == 0xc4
+"    No Beacon Frames-Probe Resp/Req-Ack-CF-End-Clear-to-send" wlan[0] != 0x80 and wlan[0] != 0x50 and wlan[0] != 0x40 and wlan[0] != 0xd4 and wlan[0] != 0xe4 and wlan[0] != 0xc4
+
+
+wlan host 00:11:22:33:44:55 and subtype beacon
+
+Hiding Beacon Frames
+
+wlan.fc.type_subtype != 0x08
+
+ 
+Type value 	Type description 	Subtype value 	Subtype description 	
+
+Wireshark display filter
+00 	Management 	0000 	Association Request 	wlan.fc.type_subtype == 0x00
+00 	Management 	0001 	Association Response 	wlan.fc.type_subtype == 0x01
+00 	Management 	0010 	Reassociation Request 	wlan.fc.type_subtype == 0x02
+00 	Management 	0011 	Reassociation Response 	wlan.fc.type_subtype == 0x03
+00 	Management 	0100 	Probe Request 	wlan.fc.type_subtype == 0x04
+00 	Management 	0101 	Probe Response 	wlan.fc.type_subtype == 0x05
+00 	Management 	0110-0111 	Reserved 	
+00 	Management 	1000 	Beacon 	wlan.fc.type_subtype == 0x08
+00 	Management 	1001 	ATIM 	wlan.fc.type_subtype == 0x09
+00 	Management 	1010 	Disassociation 	wlan.fc.type_subtype == 0x0A
+00 	Management 	1011 	Authentication 	wlan.fc.type_subtype == 0x0B
+00 	Management 	1100 	Deauthentication 	wlan.fc.type_subtype == 0x0C
+00 	Management 	1101 	Action 	wlan.fc.type_subtype == 0x0D
+00 	Management 	1110-1111 	Reserved 	
+
+ 
+Type value 	Type description 	Subtype value 	Subtype description 	
+
+Wireshark display filter
+01 	Control 	0000-0111 	Reserved 	
+01 	Control 	1000 	Block Ack Request 	wlan.fc.type_subtype == 0x18
+01 	Control 	1001 	Block Ack 	wlan.fc.type_subtype == 0x19
+01 	Control 	1010 	PS-Poll 	wlan.fc.type_subtype == 0x1A
+01 	Control 	1011 	RTS 	wlan.fc.type_subtype == 0x1B
+01 	Control 	1100 	CTS 	wlan.fc.type_subtype == 0x1C
+01 	Control 	1101 	ACK 	wlan.fc.type_subtype == 0x1D
+01 	Control 	1110 	CF-end 	wlan.fc.type_subtype == 0x1E
+01 	Control 	1111 	CF-end + CF-ack 	wlan.fc.type_subtype == 0x1F
+					
+
+ 
+
+ 
+Type value 	Type description 	Subtype value 	Subtype description 	
+
+Wireshark display filter
+10 	Data 	0000 	Data 	wlan.fc.type_subtype == 0x20
+10 	Data 	0001 	Data + CF-ack 	wlan.fc.type_subtype == 0x21
+10 	Data 	0010 	Data + CF-poll 	wlan.fc.type_subtype == 0x22
+10 	Data 	0011 	Data +CF-ack +CF-poll 	wlan.fc.type_subtype == 0x23
+10 	Data 	0100 	Null 	wlan.fc.type_subtype == 0x24
+10 	Data 	0101 	CF-ack 	wlan.fc.type_subtype == 0x25
+10 	Data 	0110 	CF-poll 	wlan.fc.type_subtype == 0x26
+10 	Data 	0111 	CF-ack +CF-poll 	wlan.fc.type_subtype == 0x27
+10 	Data 	1000 	QoS data 	wlan.fc.type_subtype == 0x28
+10 	Data 	1001 	QoS data + CF-ack 	wlan.fc.type_subtype == 0x29
+10 	Data 	1010 	QoS data + CF-poll 	wlan.fc.type_subtype == 0x2A
+10 	Data 	1011 	QoS data + CF-ack + CF-poll 	wlan.fc.type_subtype == 0x2B
+10 	Data 	1100 	QoS Null 	wlan.fc.type_subtype == 0x2C
+10 	Data 	1101 	Reserved 	wlan.fc.type_subtype == 0x2D
+10 	Data 	1110 	QoS + CF-poll (no data) 	wlan.fc.type_subtype == 0x2E
+10 	Data 	1111 	Qos + CF-ack (no data) 	wlan.fc.type_subtype == 0x2F
+11 	Reserved 	0000-1111 	Reserved
+
+ 
+Below are the explanation for some frames
+
+-Association request is sent by a station to associate to a BSS.
+
+-Association response is sent in response to an association request
+
+-Reassociation request is sent by a station changing association to another AP in the same ESS (so roaming between APs, orreassociating with the same AP)
+
+-Reassociation response is the response to the reassociation request
+
+-Probe request is sent by a station in order to “scan” for an SSID
+
+-Probe response is sent by each BSS participating to that SSID
+
+-Beacon is a periodic frame sent by the AP (or stations in case of IBSS) and giving information about the BSS
+
+-ATIM is the traffic indication map for IBSS (in a BSS, the TIM is included in the beacon)
+
+-Disassociation is sent to terminate the association of a station
+
+-Authentication is the frame used to perform the 802.11 authentication (and not any other type of authentication)
+
+-Deauthentication is the frame terminating the authentication of a station.
+
+-Action is a frame meant for sending information elements to other stations (when sending in a beacon is not possible/best)
+
+ 
+
+-PS-Poll is the Power-save poll frame polling for buffered frames after a wake-up from a station
+
+-RTS is the request-to-send frame
+
+-CTS is the clear-to-send frame (often response to RTS)
+
+-ACK is the acknowledge frame sent to confirm receipt of a frame.
+
+ 
+
+-Data frame is the basic frame containing data
+
+-Null frame is a frame meant to contain no data but flag information
+
+-QoS data is the QoS version of the data frame
+
+-QoS null is the QoS version of the null frame
