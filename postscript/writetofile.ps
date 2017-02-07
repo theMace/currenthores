@@ -1,0 +1,12 @@
+%!PS
+/outfile (output.txt) (w) file def % open files and save file objects
+/outstring (<% testing="Special chars'" @ /\\ %>
+is 
+a
+test) def
+outfile outstring writestring
+outfile closefile
+/Courier 10 selectfont
+72 720 moveto
+(Completed!) show
+showpage

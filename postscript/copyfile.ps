@@ -1,0 +1,20 @@
+%!PS
+/infile (input.txt) (r) file def % open files and save file objects
+/outfile (copy.txt) (w) file def % open files and save file objects
+/buff 128 string def % your buffer for reading operations
+{ % loop
+        infile buff readstring
+        { %ifelse
+                outfile exch writestring
+        }
+        { %else
+                outfile exch writestring
+                infile closefile
+                outfile closefile
+                exit % exit the loop
+        } ifelse
+} bind loop
+/Courier 10 selectfont
+72 720 moveto
+(Completed!) show
+showpage
