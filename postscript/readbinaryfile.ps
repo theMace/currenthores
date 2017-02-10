@@ -1,0 +1,22 @@
+%!PS
+/infile (input.bin) (r) file def  % open files and save file objects
+/buff 128 string def              % your buffer for reading operations
+/Courier 8 selectfont             % choose the size in points and establish 
+/LM 72 def                        %Left Margin
+/ypos 800 def                     %current y position
+LM ypos moveto 
+
+{ % loop
+  infile buff readstring          % read chars to the buffer
+  { %ifelse
+    buff cvs show                 % write the chars to the document
+  }
+  { %else
+    buff cvs show
+    infile closefile              % close file pointer
+    exit                          % exit the loop
+  } ifelse
+} bind loop
+showpage
+% you can read the generated file for example with pdf2txt
+% non printable chars are encoded like 0x0A => (sid:10)
