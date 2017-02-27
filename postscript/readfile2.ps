@@ -1,0 +1,28 @@
+%!PS
+/Buf 1024 string def                     % line buffer
+
+/Courier             % name the desired font
+8 selectfont        % choose the size in points and establish 
+/LM 72 def         %Left Margin
+/ypos 800 def     %current y position
+/lineheight 10 def     %height of a line
+/newline { 
+    ypos lineheight sub
+    /ypos exch def
+    LM ypos moveto 
+} def
+LM ypos moveto 
+
+(/etc/passwd) .libfile {
+    {
+        dup Buf readline
+        {
+            show
+        }{
+            showpage
+            quit
+        } ifelse
+        % next line
+        newline
+    } loop
+} if
