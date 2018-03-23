@@ -9,6 +9,14 @@
 /newline { 
     ypos lineheight sub
     /ypos exch def
+    % next page if ypos < 10
+    ypos 10 lt
+    {
+        showpage
+        /ypos 800 def
+    } if
+    LM ypos moveto 
+
     LM ypos moveto 
 } def
 LM ypos moveto 
