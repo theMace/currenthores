@@ -1,1 +1,1 @@
-MsgBox "Loaded from GitHub"
+MsgBox("Loaded from GitHub")
